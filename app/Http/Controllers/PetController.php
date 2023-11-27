@@ -30,49 +30,52 @@ class PetController extends Controller
 
         if ($response->getStatusCode() == 200) {
             $pets = json_decode($response->getBody(), true);
+            $pets = array_slice($pets, 0, 5);
 
             return view('pets.index', compact('pets'));
         } else {
             return response()->json(['error' => 'Failed to fetch pets.'], $response->getStatusCode());
         }
     }
-
-    public function create(Pet $pet)
+    public function create()
     {
-        return view('pets.create', compact('pet'));
+        return view('pets.create');
     }
+
     public function store(PetRequest $request)
     {
         $validatedData = $request->validated();
 
-        // Check if 'id' is present to determine if it's an update or create
-        if (isset($validatedData['id'])) {
-            $pet = Pet::findOrFail($validatedData['id']);
-            $pet->update($validatedData);
-        } else {
-            $pet = Pet::create($validatedData);
-        }
-
-        if (!$pet) {
-            return response()->json(['error' => 'Failed to create/update pet locally.'], 500);
-        }
-
         $client = new Client;
 
         try {
+            // Create the pet locally
+            $pet = Pet::create($validatedData);
+            echo $pet;
+            if (!$pet) {
+                return response()->json(['error' => 'Failed to create pet locally.'], 500);
+            }
+
+            // Create the pet in the external API
             $response = $client->post($this->apiUrl, [
                 'json' => $validatedData,
             ]);
 
             if ($response->getStatusCode() == 200) {
-                return redirect()->route('pets.index')->with('success', 'Pet created/updated successfully.');
+                echo($response);
+                return redirect()->route('pets.index')->with('success', 'Pet created successfully.');
             } else {
-                return response()->json(['error' => 'Failed to create/update pet in the external API.'], $response->getStatusCode());
+                // If the external API request fails, delete the locally created pet
+                $pet->delete();
+                return response()->json(['error' => 'Failed to create pet in the external API.'], $response->getStatusCode());
             }
         } catch (\Exception $e) {
+            // If an exception occurs, delete the locally created pet
+            $pet->delete();
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
 
     public function edit(Pet $pet)
     {
@@ -81,11 +84,25 @@ class PetController extends Controller
 
     public function update(Request $request, Pet $pet)
     {
-        $pet->update($request->all());
+        $client = new Client;
 
-        return redirect()->route('pets.index')
-            ->with('success', 'Pet updated successfully.');
+        try {
+            $response = $client->put("{$this->apiUrl}/{$pet->id}", [
+                'json' => $request->all(),
+            ]);
+
+            if ($response->getStatusCode() == 200) {
+                return redirect()->route('pets.index')->with('success', 'Pet updated successfully.');
+            } else {
+                return response()->json(['error' => 'Failed to update pet in the external API.'], $response->getStatusCode());
+            }
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
+
+
+
 
 
     public function destroy($id)
