@@ -1,18 +1,11 @@
 <?php
 
+use App\Http\Controllers\PetController;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
+Route::post('/pets/create', [PetController::class, 'create'])->name('pets.create');
+Route::delete('/pets/{pet}', [PetController::class, 'destroy'])->name('pets.destroy');
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::resource('pets', PetController::class)->except(['create', 'index']);
+
+Route::get('/', [PetController::class, 'index'])->name('pets.index');
