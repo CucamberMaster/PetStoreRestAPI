@@ -6,7 +6,6 @@
     <form method="POST" action="{{ route('pets.store') }}">
         @csrf
 
-        <!-- Include form fields for each attribute -->
         <label for="category_id">Category ID:</label>
         <input type="number" name="category[id]" required>
         <br>
@@ -17,8 +16,7 @@
         <input type="text" name="name" required>
         <br>
         <label for="photoUrls">Photo URLs:</label>
-        <input type="text" name="photoUrls[0]" placeholder="Enter photo URL" required>
-        <!-- Add more input fields for multiple photo URLs if needed -->
+        <input type="text" name="photoUrls[0]" placeholder="Enter photo URL" >
         <br>
         <label for="tags">Tags:</label>
         <div id="tags-container">
@@ -30,7 +28,6 @@
             </div>
         </div>
         <button type="button" id="add-tag">Add Tag</button>
-        <!-- Add more input fields for multiple tags if needed -->
         <br>
         <label for="status">Status:</label>
         <select name="status" required>
@@ -43,7 +40,6 @@
     </form>
 
     <script>
-        // JavaScript to add new tag input fields dynamically
         document.getElementById('add-tag').addEventListener('click', function() {
             var tagsContainer = document.getElementById('tags-container');
             var tagInput = document.createElement('div');

@@ -66,7 +66,6 @@
     </form>
 
     <script>
-        // JavaScript to add new tag input fields dynamically
         document.getElementById('add-tag').addEventListener('click', function() {
             var tagsContainer = document.getElementById('tags-container');
             var tagInput = document.createElement('div');

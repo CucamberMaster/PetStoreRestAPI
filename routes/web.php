@@ -4,7 +4,7 @@ use App\Http\Controllers\PetController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/pets/create', [PetController::class, 'create'])->name('pets.create');
-Route::post('/pets', [PetController::class, 'store'])->name('pets.store');
+Route::post('/pets/store', [PetController::class, 'store'])->name('pets.store');
 
 Route::delete('/pets/{pet}', [PetController::class, 'destroy'])->name('pets.destroy');
 

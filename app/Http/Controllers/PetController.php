@@ -12,10 +12,12 @@ use Illuminate\Support\Facades\Validator;
 class PetController extends Controller
 {
     protected string $apiUrl;
+    protected Client $httpClient;
 
-    public function __construct()
+    public function __construct(Client $httpClient)
     {
         $this->apiUrl = Config::get('api_urls.pet');
+        $this->httpClient = $httpClient;
     }
 
     public function index(Request $request)
@@ -30,51 +32,35 @@ class PetController extends Controller
 
         if ($response->getStatusCode() == 200) {
             $pets = json_decode($response->getBody(), true);
-            $pets = array_slice($pets, 0, 5);
-
+            $pets = array_slice($pets, 0, 500);
             return view('pets.index', compact('pets'));
         } else {
             return response()->json(['error' => 'Failed to fetch pets.'], $response->getStatusCode());
         }
     }
+
+
     public function create()
     {
         return view('pets.create');
     }
-
-    public function store(PetRequest $request)
+    public function store(Request $request)
     {
-        $validatedData = $request->validated();
-
-        $client = new Client;
-
         try {
-            // Create the pet locally
-            $pet = Pet::create($validatedData);
-            echo $pet;
-            if (!$pet) {
-                return response()->json(['error' => 'Failed to create pet locally.'], 500);
-            }
-
-            // Create the pet in the external API
-            $response = $client->post($this->apiUrl, [
-                'json' => $validatedData,
+            $response = $this->httpClient->post($this->apiUrl, [
+                'json' => $request->all(),
             ]);
 
             if ($response->getStatusCode() == 200) {
-                echo($response);
                 return redirect()->route('pets.index')->with('success', 'Pet created successfully.');
             } else {
-                // If the external API request fails, delete the locally created pet
-                $pet->delete();
                 return response()->json(['error' => 'Failed to create pet in the external API.'], $response->getStatusCode());
             }
         } catch (\Exception $e) {
-            // If an exception occurs, delete the locally created pet
-            $pet->delete();
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
 
 
     public function edit(Pet $pet)
@@ -100,10 +86,6 @@ class PetController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
-
-
-
-
 
     public function destroy($id)
     {
