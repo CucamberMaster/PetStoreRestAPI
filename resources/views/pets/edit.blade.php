@@ -1,68 +1,37 @@
-<!-- resources/views/pets/edit.blade.php -->
+
 
 @extends('layouts.app')
 
 @section('content')
     <h2>Edit Pet</h2>
-
+    <a href="{{ route('pets.index' )}}" class="btn btn-primary">Comeback to main Page </a>
     <form method="POST" action="{{ route('pets.update', $pet->id) }}">
         @csrf
         @method('PUT')
 
-        <label for="name">Name:</label>
-        <input type="text" name="name" value="{{ old('name', $pet->name) }}" required>
-        <br>
-
-        <label for="category_id">Category ID:</label>
-        <input type="number" name="category[id]" value="{{ old('category.id', $pet->category_id) }}" required>
-        <br>
-
         <label for="category_name">Category Name:</label>
-        <input type="text" name="category[name]" value="{{ old('category.name', $pet->category_name) }}" required>
+        <input type="text" name="category[name]" required>
         <br>
 
-        <label for="photoUrls">Photo URLs:</label>
-        <input type="text" name="photoUrls[0]" value="{{ old('photoUrls.0', $pet->photoUrls[0] ?? '') }}" placeholder="Enter photo URL" required>
-        <!-- Add more input fields for multiple photo URLs if needed -->
+        <label for="name">Name:</label>
+        <input type="text" name="name" required>
         <br>
-
-        <label for="tags">Tags:</label>
         <div id="tags-container">
-            @if (old('tags'))
-                @foreach (old('tags') as $tag)
-                    <div class="tag-input">
-                        <label for="tags_id">Tag ID:</label>
-                        <input type="text" name="tags[{{ $loop->index }}][id]" value="{{ $tag['id'] }}" required>
-
-                        <label for="tags_name">Tag Name:</label>
-                        <input type="text" name="tags[{{ $loop->index }}][name]" value="{{ $tag['name'] }}" required>
-                    </div>
-                @endforeach
-            @elseif ($pet->tags)
-                @foreach ($pet->tags as $tag)
-                    <div class="tag-input">
-                        <label for="tags_id">Tag ID:</label>
-                        <input type="text" name="tags[{{ $loop->index }}][id]" value="{{ $tag->id }}" required>
-
-                        <label for="tags_name">Tag Name:</label>
-                        <input type="text" name="tags[{{ $loop->index }}][name]" value="{{ $tag->name }}" required>
-                    </div>
-                @endforeach
-            @endif
+            <div class="tag-input">
+                <label for="tags_name">Tag Name:</label>
+                <input type="text" name="tags[0][name]" required>
+            </div>
         </div>
-        <button type="button" id="add-tag">Add Tag</button>
-        <!-- Add more input fields for multiple tags if needed -->
         <br>
-
         <label for="status">Status:</label>
         <select name="status" required>
-            <option value="available" {{ old('status', $pet->status) === 'available' ? 'selected' : '' }}>Available</option>
-            <option value="pending" {{ old('status', $pet->status) === 'pending' ? 'selected' : '' }}>Pending</option>
-            <option value="sold" {{ old('status', $pet->status) === 'sold' ? 'selected' : '' }}>Sold</option>
+            <option value="available">Available</option>
+            <option value="pending">Pending</option>
+            <option value="sold">Sold</option>
         </select>
         <br>
 
-        <button type="submit">Update Pet</button>
+        <button type="submit" class="btn btn-success">Edit Pet</button>
     </form>
 
     <script>
@@ -80,4 +49,38 @@
             tagsContainer.appendChild(tagInput);
         });
     </script>
+    <style>
+        form {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        #tags-container {
+            margin-bottom: 15px;
+        }
+
+
+        .tag-input {
+            margin-bottom: 10px;
+        }
+
+    </style>
 @endsection
