@@ -11,7 +11,7 @@
             <option value="sold" {{ request('status') === 'sold' ? 'selected' : '' }}>Sold</option>
         </select>
 
-        <a id="findByStatusBtn" class="btn btn-primary" href="#">Find by Status</a>
+        <button id="findByStatusBtn" class="btn btn-primary">Find by Status</button>
         <a class="btn btn-primary" href="{{ route('pets.create')}}">Create Pet Slot</a>
     </div>
 
@@ -48,27 +48,33 @@
 
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script>
-        $(document).ready(function() {
-            $('#findByStatusBtn').on('click', function() {
+        $(document).ready(function () {
+            $('#findByStatusBtn').on('click', function (event) {
+                event.preventDefault(); // Prevent the default action
+
                 var selectedStatus = $('#statusSelect').val();
+                console.log('Selected status:', selectedStatus);
 
                 $.ajax({
                     type: 'GET',
                     url: '{{ route("pets.index") }}',
-                    data: {status: selectedStatus},
-                    success: function(data) {
+                    data: { status: selectedStatus },
+                    success: function (data) {
+                        var newUrl = window.location.pathname + '?status=' + selectedStatus;
+                        window.history.pushState({ path: newUrl }, '', newUrl);
+                        window.location.reload();
                         $('tbody').html('');
-                        $.each(data, function(index, pet) {
+                        $.each(data, function (index, pet) {
                             if (pet.category && pet.name && pet.category.name !== 'string' && pet.category.name !== 'ZAP' && pet.name !== 'string') {
                                 $('tbody').append(`
-                                    <tr>
-                                        <td>${pet.category.name}</td>
-                                        <td>${pet.name}</td>
-                                        <td>
-                                            <a href="{{ route('pets.edit', $pet['id']) }}" class="btn btn-primary">Edit</a>
-                                            <form action="{{ route('pets.destroy', $pet['id']) }}" method="POST"
-                                                  onsubmit="return confirm('Are you sure you want to delete {{ $pet['name'] ?? 'this pet' }}?')">
-                                                @csrf
+                            <tr>
+                                <td>${pet.category.name}</td>
+                                <td>${pet.name}</td>
+                                <td>
+                                    <a href="{{ route('pets.edit', $pet['id']) }}" class="btn btn-primary">Edit</a>
+                                    <form action="{{ route('pets.destroy', $pet['id']) }}" method="POST"
+                                          onsubmit="return confirm('Are you sure you want to delete ${pet['name'] ?? 'this pet'}?')">
+                                        @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-danger">Delete</button>
                             </form>
@@ -78,7 +84,7 @@
                             }
                         });
                     },
-                    error: function(error) {
+                    error: function (error) {
                         console.error('Error:', error);
                     }
                 });

@@ -24,23 +24,31 @@ class PetController extends Controller
 
     public function index(Request $request)
     {
-        $status = $request->query('status', 'available');
-
+        $providedStatus = $request->query('status', '');
+        $allowedStatuses = ['sold', 'pending', 'available'];
+        $status = in_array($providedStatus, $allowedStatuses) ? $providedStatus : 'sold';
         try {
-            $response = Http::get("{$this->apiUrl}/findByStatus", [
-                'status' => $status,
-            ]);
+            $pets = $this->getPetsByStatus($status);
 
-            if ($response->successful()) {
-                $pets = $response->json();
-                $pets = array_slice($pets, 0, 5000);
-
-                return view('pets.index', compact('pets'));
-            } else {
-                return response()->json(['error' => 'Failed to fetch pets.'], $response->status());
-            }
+            return view('pets.index', compact('pets'));
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    private function getPetsByStatus($status)
+    {
+        $response = Http::get("{$this->apiUrl}/findByStatus", [
+            'status' => $status,
+        ]);
+
+        if ($response->successful()) {
+            $pets = $response->json();
+            $pets = array_slice($pets, 0, 5000);
+
+            return $pets;
+        } else {
+            throw new \Exception('Failed to fetch pets.');
         }
     }
 
