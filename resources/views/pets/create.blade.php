@@ -8,20 +8,14 @@
         @csrf
 
 
+        <label for="name">Name:</label>
+        <input type="text" name="name" required>
+        <br>
         <label for="category_name">Category Name:</label>
         <input type="text" name="category[name]" required>
         <br>
 
-        <label for="name">Name:</label>
-        <input type="text" name="name" required>
-        <br>
-        <div id="tags-container">
-            <div class="tag-input">
-                <label for="tags_name">Tag Name:</label>
-                <input type="text" name="tags[0][name]" required>
-            </div>
-        </div>
-        <br>
+
         <label for="status">Status:</label>
         <select name="status" required>
             <option value="available">Available</option>
@@ -34,17 +28,6 @@
     </form>
 
     <script>
-        document.getElementById('add-tag').addEventListener('click', function() {
-            var tagsContainer = document.getElementById('tags-container');
-            var tagInput = document.createElement('div');
-            tagInput.classList.add('tag-input');
-            tagInput.innerHTML = `
-
-                <label for="tags_name">Tag Name:</label>
-                <input type="text" name="tags[][name]" required>
-            `;
-            tagsContainer.appendChild(tagInput);
-        });
         document.getElementById('createPetForm').addEventListener('submit', function(event) {
             var nameField = document.getElementsByName('name')[0];
             if (nameField.value.trim() === '') {

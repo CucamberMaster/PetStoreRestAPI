@@ -9,19 +9,13 @@
         @csrf
         @method('PUT')
 
-        <label for="category_name">Category Name:</label>
-        <input type="text" name="category[name]" required>
-        <br>
+
 
         <label for="name">Name:</label>
         <input type="text" name="name" required>
         <br>
-        <div id="tags-container">
-            <div class="tag-input">
-                <label for="tags_name">Tag Name:</label>
-                <input type="text" name="tags[0][name]" required>
-            </div>
-        </div>
+        <label for="category_name">Category Name:</label>
+        <input type="text" name="category[name]" required>
         <br>
         <label for="status">Status:</label>
         <select name="status" required>
@@ -33,22 +27,6 @@
 
         <button type="submit" class="btn btn-success">Edit Pet</button>
     </form>
-
-    <script>
-        document.getElementById('add-tag').addEventListener('click', function() {
-            var tagsContainer = document.getElementById('tags-container');
-            var tagInput = document.createElement('div');
-            tagInput.classList.add('tag-input');
-            tagInput.innerHTML = `
-                <label for="tags_id">Tag ID:</label>
-                <input type="text" name="tags[][id]" required>
-
-                <label for="tags_name">Tag Name:</label>
-                <input type="text" name="tags[][name]" required>
-            `;
-            tagsContainer.appendChild(tagInput);
-        });
-    </script>
     <style>
         form {
             max-width: 400px;
@@ -72,15 +50,5 @@
             padding: 10px;
             margin-top: 10px;
         }
-
-        #tags-container {
-            margin-bottom: 15px;
-        }
-
-
-        .tag-input {
-            margin-bottom: 10px;
-        }
-
     </style>
 @endsection
