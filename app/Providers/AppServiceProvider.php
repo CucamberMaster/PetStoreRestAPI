@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Services\PetService;
+use App\Services\PetServiceInterface;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -11,7 +13,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(PetServiceInterface::class, PetService::class);
+
     }
 
     /**

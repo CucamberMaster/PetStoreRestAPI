@@ -6,16 +6,16 @@
     <h2>Edit Pet</h2>
     <a href="{{ route('pets.index' )}}" class="btn btn-primary">Comeback to main Page </a>
     <form method="POST" action="{{ route('pets.update', $pet->id) }}">
-        @csrf
+
         @method('PUT')
+        @csrf
 
-
+        <label for="category_name">Category Name:</label>
+        <input type="text" name="category[name]" required>
+        <br>
 
         <label for="name">Name:</label>
         <input type="text" name="name" required>
-        <br>
-        <label for="category_name">Category Name:</label>
-        <input type="text" name="category[name]" required>
         <br>
         <label for="status">Status:</label>
         <select name="status" required>
@@ -24,6 +24,7 @@
             <option value="sold">Sold</option>
         </select>
         <br>
+        <input type="hidden" name="id" value="{{ $pet->id }}">
 
         <button type="submit" class="btn btn-success">Edit Pet</button>
     </form>

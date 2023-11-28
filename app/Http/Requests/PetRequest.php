@@ -13,12 +13,12 @@ class PetRequest extends FormRequest
         return [
             'name' => 'required|string',
             'status' => 'required|in:available,pending,sold',
-            'category_id' => 'required|integer',
+            'category_id' => 'integer',
             'category_name' => 'required|string',
             'photoUrls' => 'array',
             'tags' => 'array',
-            'tags.*.id' => 'required|integer',
-            'tags.*.name' => 'required|string',
+            'tags.*.id' => 'integer',
+            'tags.*.name' => 'string',
         ];
     }
 }

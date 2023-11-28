@@ -8,8 +8,10 @@ Route::post('/pets/store', [PetController::class, 'store'])->name('pets.store');
 
 Route::delete('/pets/{pet}', [PetController::class, 'destroy'])->name('pets.destroy');
 
-Route::get('/pets/edit', [PetController::class, 'edit'])->name('pets.edit');
+Route::get('/pets/edit/{id}', [PetController::class, 'edit'])->name('pets.edit');
+
 Route::put('/pets/update', [PetController::class, 'update'])->name('pets.update');
+
 
 
 Route::get('/', [PetController::class, 'index'])->name('pets.index');

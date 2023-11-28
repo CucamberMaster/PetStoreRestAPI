@@ -1,22 +1,18 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\Pet;
-use GuzzleHttp\Client;
+
+use App\Exceptions\PetUpdateException;
+use App\Services\PetServiceInterface;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Http;
 
 class PetController extends Controller
 {
-    protected string $apiUrl;
+    protected PetServiceInterface $petService;
 
-    protected Client $httpClient;
-
-    public function __construct(Client $httpClient)
+    public function __construct(PetServiceInterface $petService)
     {
-        $this->apiUrl = Config::get('api_urls.pet');
-        $this->httpClient = $httpClient;
+        $this->petService = $petService;
     }
 
     public function index(Request $request)
@@ -24,31 +20,14 @@ class PetController extends Controller
         $providedStatus = $request->query('status', '');
         $allowedStatuses = ['sold', 'pending', 'available'];
         $status = in_array($providedStatus, $allowedStatuses) ? $providedStatus : 'available';
-        try {
-            $pets = $this->getPetsByStatus($status);
 
+        try {
+            $pets = $this->petService->getPetsByStatus($status);
             return view('pets.index', compact('pets'));
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
-
-    private function getPetsByStatus($status)
-    {
-        $response = Http::get("{$this->apiUrl}/findByStatus", [
-            'status' => $status,
-        ]);
-
-        if ($response->successful()) {
-            $pets = $response->json();
-            $pets = array_slice($pets, 0, 5000);
-
-            return $pets;
-        } else {
-            throw new \Exception('Failed to fetch pets.');
-        }
-    }
-
 
     public function create()
     {
@@ -58,60 +37,41 @@ class PetController extends Controller
     public function store(Request $request)
     {
         try {
-            $response = $this->httpClient->post($this->apiUrl, [
-                'json' => $request->all(),
-            ]);
-            if ($response->getStatusCode() == 200) {
-                return redirect()->route('pets.index')->with('success', 'Pet created successfully.');
-            } else {
-                return response()->json(['error' => 'Failed to create pet'], $response->getStatusCode());
-            }
+            $this->petService->createPet($request->all());
+            return redirect()->route('pets.index')->with('success', 'Pet created successfully.');
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
-
-
-    public function edit(Pet $pet)
+    public function edit($id)
     {
-        return view('pets.edit', compact('pet'));
+        try {
+            $pet = $this->petService->getPetById($id);
+            return view('pets.edit', compact('pet'));
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
-    public function update(Request $request, Pet $pet)
+    public function update(Request $request)
     {
-        $client = new Client;
-
         try {
-            $response = $client->put("{$this->apiUrl}/{$pet->id}", [
-                'json' => $request->all(),
-            ]);
+            $id = $request->input('id');
 
-            if ($response->getStatusCode() == 200) {
-                return redirect()->route('pets.index')->with('success', 'Pet updated successfully.');
-            } else {
-                return response()->json(['error' => 'Failed to update pet.'], $response->getStatusCode());
-            }
-        } catch (\Exception $e) {
+            return redirect()->route('pets.index')->with('success', 'Pet created successfully.');
+        } catch (PetUpdateException $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
     public function destroy($id)
     {
-        $client = new Client;
-
         try {
-            $response = $client->delete("{$this->apiUrl}/$id");
-
-            if ($response->getStatusCode() == 200) {
-                return redirect()->route('pets.index')->with('success', 'Pet deleted successfully.');
-            } else {
-                return response()->json(['error' => 'Failed to delete pet '], $response->getStatusCode());
-            }
+            $this->petService->deletePet($id);
+            return redirect()->route('pets.index')->with('success', 'Pet deleted successfully.');
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
-
 }
