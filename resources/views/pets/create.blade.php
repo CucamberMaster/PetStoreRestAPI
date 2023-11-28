@@ -7,14 +7,13 @@
     <form method="POST" action="{{ route('pets.store') }}" id="createPetForm">
         @csrf
 
-
         <label for="name">Name:</label>
         <input type="text" name="name" required>
         <br>
+
         <label for="category_name">Category Name:</label>
         <input type="text" name="category[name]" required>
         <br>
-
 
         <label for="status">Status:</label>
         <select name="status" required>

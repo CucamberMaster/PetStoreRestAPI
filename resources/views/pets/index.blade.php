@@ -94,23 +94,6 @@
 @endsection
 
 <style>
-    .pet-card {
-        color: white;
-        background-color: gray;
-        border: 1px solid #ddd;
-        padding: 15px;
-        margin-bottom: 15px;
-        border-radius: 5px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        position: relative;
-    }
-
-    .pet-actions {
-        position: absolute;
-        top: 15px;
-        right: 15px;
-    }
-
     .pet-actions a,
     .pet-actions button {
         margin-left: 10px;

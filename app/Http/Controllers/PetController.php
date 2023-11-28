@@ -26,7 +26,7 @@ class PetController extends Controller
     {
         $providedStatus = $request->query('status', '');
         $allowedStatuses = ['sold', 'pending', 'available'];
-        $status = in_array($providedStatus, $allowedStatuses) ? $providedStatus : 'sold';
+        $status = in_array($providedStatus, $allowedStatuses) ? $providedStatus : 'available';
         try {
             $pets = $this->getPetsByStatus($status);
 
@@ -57,17 +57,17 @@ class PetController extends Controller
     {
         return view('pets.create');
     }
+
     public function store(Request $request)
     {
         try {
             $response = $this->httpClient->post($this->apiUrl, [
                 'json' => $request->all(),
             ]);
-
             if ($response->getStatusCode() == 200) {
                 return redirect()->route('pets.index')->with('success', 'Pet created successfully.');
             } else {
-                return response()->json(['error' => 'Failed to create pet in the external API.'], $response->getStatusCode());
+                return response()->json(['error' => 'Failed to create pet API.'], $response->getStatusCode());
             }
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
