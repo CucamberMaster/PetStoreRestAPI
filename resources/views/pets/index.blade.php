@@ -50,7 +50,7 @@
     <script>
         $(document).ready(function () {
             $('#findByStatusBtn').on('click', function (event) {
-                event.preventDefault(); // Prevent the default action
+                event.preventDefault();
 
                 var selectedStatus = $('#statusSelect').val();
                 console.log('Selected status:', selectedStatus);

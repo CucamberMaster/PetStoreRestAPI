@@ -58,23 +58,5 @@
             padding: 10px;
             margin-top: 10px;
         }
-
-        #tags-container {
-            margin-bottom: 15px;
-        }
-
-
-        .tag-input {
-            margin-bottom: 10px;
-        }
-
-
-        .alert {
-            margin-top: 10px;
-            padding: 10px;
-            background-color: #f44336;
-            color: #fff;
-            border-radius: 5px;
-        }
     </style>
 @endsection

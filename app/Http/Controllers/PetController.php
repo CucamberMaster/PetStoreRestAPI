@@ -1,14 +1,11 @@
 <?php
 
 namespace App\Http\Controllers;
-
-use App\Http\Requests\PetRequest;
 use App\Models\Pet;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Validator;
 
 class PetController extends Controller
 {
@@ -67,7 +64,7 @@ class PetController extends Controller
             if ($response->getStatusCode() == 200) {
                 return redirect()->route('pets.index')->with('success', 'Pet created successfully.');
             } else {
-                return response()->json(['error' => 'Failed to create pet API.'], $response->getStatusCode());
+                return response()->json(['error' => 'Failed to create pet'], $response->getStatusCode());
             }
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -93,7 +90,7 @@ class PetController extends Controller
             if ($response->getStatusCode() == 200) {
                 return redirect()->route('pets.index')->with('success', 'Pet updated successfully.');
             } else {
-                return response()->json(['error' => 'Failed to update pet in the external API.'], $response->getStatusCode());
+                return response()->json(['error' => 'Failed to update pet.'], $response->getStatusCode());
             }
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -110,7 +107,7 @@ class PetController extends Controller
             if ($response->getStatusCode() == 200) {
                 return redirect()->route('pets.index')->with('success', 'Pet deleted successfully.');
             } else {
-                return response()->json(['error' => 'Failed to delete pet from the API.'], $response->getStatusCode());
+                return response()->json(['error' => 'Failed to delete pet '], $response->getStatusCode());
             }
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
