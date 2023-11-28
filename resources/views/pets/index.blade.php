@@ -1,53 +1,69 @@
 @extends('layouts.app')
 
 @section('content')
-    <h2>Pets</h2>
-    <a class="btn btn-primary" >Find by Text </a>
-    <a class="btn btn-primary" >Find by Status </a>
-    <a class="routes-buttons btn btn-primary" href="{{ route('pets.create')}}">Create Pet Slot</a>
+    <h1>Pets</h1>
 
-    @foreach($pets as $pet)
-        <div class="pet-card mt-2">
-            @if(isset($pet['name']))
-                <h3>{{ $pet['name'] }}</h3>
-            @else
-                <h3>Unknown Pet</h3>
-            @endif
+    <div>
+        <label for="statusSelect">Status:</label>
+        <select id="statusSelect" name="status" required>
+            <option value="available" {{ request('status') === 'available' ? 'selected' : '' }}>Available</option>
+            <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending</option>
+            <option value="sold" {{ request('status') === 'sold' ? 'selected' : '' }}>Sold</option>
+        </select>
+        <a id="findByStatusBtn" class="btn btn-primary" href="#">Find by Status</a>
+    </div>
 
-            <p>Status: {{ $pet['status'] }}</p>
-            <div class="pet-actions">
-                <a href="{{ route('pets.edit', $pet['id']) }}" class="btn btn-primary">Edit</a>
-                <form action="{{ route('pets.destroy', $pet['id']) }}" method="POST"
-                      onsubmit="return confirm('Are you sure you want to delete {{ $pet['name'] ?? 'this pet' }}?')">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger">Delete</button>
-                </form>
-            </div>
-        </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Category Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($pets as $pet)
+                <tr>
+                    @if (isset($pet['category']['name']) && isset($pet['name']) && $pet['category']['name'] !== 'string' && $pet['category']['name'] !== 'ZAP' && $pet['name'] !== 'string')
+                        <td>{{ $pet['name'] }}</td>
+                        <td>{{ $pet['category']['name'] }}</td>
+                    @else
+                        <div style="display: none"></div>
+                    @endif
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+@endsection
 
-        <style>
+@section('scripts')
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#findByStatusBtn').on('click', function() {
+                var selectedStatus = $('#statusSelect').val();
 
-            .pet-card {
-                color: white;
-                background-color: gray;
-                border: 1px solid #ddd;
-                padding: 15px;
-                margin-bottom: 15px;
-                border-radius: 5px;
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-                position: relative;
-            }
-
-            .pet-actions {
-                position: absolute;
-                top: 15px;
-                right: 15px;
-            }
-
-            .pet-actions a, .pet-actions button {
-                margin-left: 10px;
-            }
-        </style>
-    @endforeach
+                $.ajax({
+                    type: 'GET',
+                    url: '{{ route("pets.index") }}',
+                    data: {status: selectedStatus},
+                    success: function(data) {
+                        $('tbody').html('');
+                        $.each(data, function(index, pet) {
+                            if (pet.category && pet.name && pet.category.name !== 'string' && pet.category.name !== 'ZAP' && pet.name !== 'string') {
+                                $('tbody').append(`
+                                    <tr>
+                                        <td>${pet.category.name}</td>
+                                        <td>${pet.name}</td>
+                                    </tr>
+                                `);
+                            }
+                        });
+                    },
+                    error: function(error) {
+                        console.error('Error:', error);
+                    }
+                });
+            });
+        });
+    </script>
 @endsection
