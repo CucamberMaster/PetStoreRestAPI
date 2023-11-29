@@ -2,9 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-class Tag extends Model
+class Tag
 {
-    protected $fillable = ['id', 'name'];
+    public int $id;
+
+    public string $name;
+
+    public function __construct(int $id, string $name)
+    {
+        $this->id = $id;
+        $this->name = $name;
+    }
 }
