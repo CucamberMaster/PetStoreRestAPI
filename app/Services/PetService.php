@@ -3,21 +3,21 @@
 namespace App\Services;
 
 use App\Exceptions\PetUpdateException;
+use App\Http\Responses\ApiGetPetResponse;
+use App\Models\Category;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Http;
 
 class PetService implements PetServiceInterface
 {
     protected string $apiUrl;
-    protected Client $httpClient;
 
-    public function __construct(Client $httpClient)
+    public function __construct(protected Client $httpClient)
     {
         $this->apiUrl = config('api_urls.pet');
-        $this->httpClient = $httpClient;
     }
 
-    public function getPetsByStatus($status)
+    public function getPetsByStatus($status): array
     {
         $response = Http::get("{$this->apiUrl}/findByStatus", [
             'status' => $status,
@@ -30,7 +30,7 @@ class PetService implements PetServiceInterface
         }
     }
 
-    public function createPet($data)
+    public function createPet($data): bool
     {
         $response = $this->httpClient->post($this->apiUrl, [
             'json' => $data,
@@ -42,33 +42,37 @@ class PetService implements PetServiceInterface
             throw new \Exception('Failed to create pet in the external API.');
         }
     }
-    public function getPetById(int $id)
+
+    public function getPetById(int $id): ApiGetPetResponse
     {
         $response = Http::get("{$this->apiUrl}/{$id}");
 
         if ($response->successful()) {
-            return json_decode($response->body());
+            $res = $response->json();
+            return new ApiGetPetResponse($res['id'], $res['category']['id'], $res['category']['name'],$res['name'], $res['status']);
+
         } else {
             throw new \Exception('Failed to fetch pet by ID.');
         }
     }
 
 
-    public function updatePet($id, $data)
+    public function updatePet($id, $data): ApiGetPetResponse
     {
-        $response = $this->httpClient->put("{$this->apiUrl}", [
-            'json' => $data,
-        ]);
+        $response = Http::put("{$this->apiUrl}", $data);
 
-
-        if ($response->getStatusCode() == 200) {
-            return $data;
+        if ($response->successful()) {
+            $updatedData = $response->json();
+            return new ApiGetPetResponse($updatedData['id'],$updatedData['category']['id']  ,$updatedData['category']['name'] ,$updatedData['name'], $updatedData['status'],);
         } else {
             throw new PetUpdateException('Failed to update pet in the external API.');
         }
     }
 
-    public function deletePet($id)
+
+
+
+    public function deletePet($id): bool
     {
         $response = $this->httpClient->delete("{$this->apiUrl}/{$id}");
 

@@ -3,17 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\PetUpdateException;
+use App\Http\Requests\PetRequest;
 use App\Services\PetServiceInterface;
 use Illuminate\Http\Request;
 
 class PetController extends Controller
 {
-    protected PetServiceInterface $petService;
-
-    public function __construct(PetServiceInterface $petService)
-    {
-        $this->petService = $petService;
-    }
+    public function __construct(
+        protected PetServiceInterface $petService
+    ){}
 
     public function index(Request $request)
     {
@@ -34,11 +32,14 @@ class PetController extends Controller
         return view('pets.create');
     }
 
-    public function store(Request $request)
+    public function store(PetRequest  $request)
     {
+        $validatedData = $request->validated();
         try {
-            $this->petService->createPet($request->all());
-            return redirect()->route('pets.index')->with('success', 'Pet created successfully.');
+            $this->petService->createPet($validatedData);
+            return redirect()->route('pets.index')->with('success', 'Pet updated successfully.');
+        } catch (PetUpdateException $e) {
+            return response()->json(['error' => $e->getMessage()], 422);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -54,16 +55,21 @@ class PetController extends Controller
         }
     }
 
-    public function update(Request $request)
+    public function update( PetRequest $request)
     {
-        try {
-            $id = $request->input('id');
+        $validatedData = $request->validated();
 
-            return redirect()->route('pets.index')->with('success', 'Pet created successfully.');
+        try {
+            $id = $validatedData['id'];
+            $this->petService->updatePet($id, $validatedData);
+
+            return redirect()->route('pets.index')->with('success', 'Pet updated successfully.');
         } catch (PetUpdateException $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+
 
     public function destroy($id)
     {
