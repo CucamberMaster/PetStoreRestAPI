@@ -35,7 +35,6 @@ class PetController extends Controller
     public function store(PetRequest  $request)
     {
         $validatedData = $request->validated();
-        //dodac wiadomosc o bledzie na ekranie w view
         try {
             $this->petService->createPet($validatedData);
             return redirect()->route('pets.index')->with('success', 'Pet updated successfully.');
